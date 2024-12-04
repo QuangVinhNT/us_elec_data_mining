@@ -1,0 +1,80 @@
+# Docker compose version
+version: '3.8'
+
+# Create private network
+networks:
+  us-elec-network:
+    driver: bridge
+
+# Create services
+services:
+  mysql:
+    build: './database/' # folder path, start from level of docker-compose.yml file
+    ports:
+      - '6603:3306' # [host port]:[container port]
+    hostname: 'host'
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: 'us_elec'
+    restart: no
+    networks:
+      - us-elec-network # use private network
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-p1234']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  database-api:
+    build: './database_api/'
+    ports:
+      - '3000:3000'
+    depends_on:
+      mysql:
+        condition: service_healthy # mysql run first, after run this
+    restart: no
+    networks:
+      - us-elec-network
+
+  data-ingestion:
+    build: './data_ingestion/'
+    depends_on:
+      - 'database-api'
+    restart: no
+    networks:
+      - us-elec-network
+
+  data-analysis:
+    build: './backend/data_analysis/'
+    depends_on:
+      - 'database-api'
+    restart: no
+    networks:
+      - us-elec-network
+  
+  clustering:
+    build: './backend/clustering/'
+    depends_on:
+      - 'database-api'
+    restart: no
+    networks:
+      - us-elec-network
+
+  prediction:
+    build: './backend/prediction/'
+    depends_on:
+      - 'database-api'
+    restart: no
+    networks:
+      - us-elec-network
+
+  frontend:
+    build: './frontend'
+    ports:
+      - '5173:5173'
+    depends_on:
+      - 'database-api'
+    restart: no
+    networks:
+      - us-elec-network
+

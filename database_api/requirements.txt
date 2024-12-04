@@ -1,0 +1,6 @@
+mysql-connector-python
+flask
+flask_cors
+requests
+pytz
+pandas
