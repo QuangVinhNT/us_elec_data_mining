@@ -19,6 +19,10 @@ export default function DecomposedChart({setLoadingDecomposedChart}) {
 	}
 	useEffect(() => {
 		getDecomposedData()
+		const interval = setInterval(() => {
+			getDecomposedData()
+		}, 60000)
+		return () => clearInterval(interval)
 	}, [])
 
   const resampleTrace = {
@@ -110,14 +114,16 @@ export default function DecomposedChart({setLoadingDecomposedChart}) {
 		yaxis3: {...yaxisSeasonal, ...axis, title: 'Seasonal'},
 		xaxis4: {...xaxisResid, ...axis},
 		yaxis4: {...yaxisResid, ...axis, title: 'Resid'},
-		paper_bgcolor: '#f4f8fb'
 	}
   return (
-    <Plot
-			data={chartData}
-			layout={layout}
-			style={{width: '100%', height: '100vh'}}
-			config={{responsive: true}}
-		/>
+    <div style={{position: 'relative'}}>
+			<h3 style={{fontWeight: 600, position: 'absolute', zIndex: 10, top: 20, left: 20}}>Electricity decomposition by Month</h3>
+			<Plot
+				data={chartData}
+				layout={layout}
+				style={{width: '100%', height: '80vh'}}
+				config={{responsive: true}}
+			/>
+		</div>
   )
 }

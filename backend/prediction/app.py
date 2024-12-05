@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 def get_pivot_data():
   try:
-    response = requests.get('http://database-api:3000/get-pivot-data')
+    response = requests.get('http://database-api:3000/get-pivot-data-d')
     response_data = pandas.DataFrame(json.loads(response.text))
     response_data['produce_time'] = pandas.to_datetime(response_data['produce_time'])
     return response_data
@@ -17,7 +17,6 @@ def get_pivot_data():
 
 def get_prediction_data():
   pivot_data = get_pivot_data()
-  print(pivot_data)
   df_prediction = pandas.DataFrame({
     'produce_time': pivot_data['produce_time'],
     'coal': pivot_data['Coal'],
@@ -25,7 +24,7 @@ def get_prediction_data():
     'natural_gas': pivot_data['Natural Gas'],
     'total': pivot_data['total']
   })
-  df_prediction = df_prediction.resample('D', on='produce_time').median().dropna(axis=0)
+  df_prediction = df_prediction.set_index('produce_time')
 
   s = df_prediction.values
   observed_size = 5
@@ -64,4 +63,3 @@ if __name__ == '__main__':
     delete_all_prediction_data()
     get_prediction_data()
     time.sleep(300)
-  # pass

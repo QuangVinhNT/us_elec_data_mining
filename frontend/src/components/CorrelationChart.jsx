@@ -15,39 +15,46 @@ export default function CorrelationChart({setLoadingCorrelationChart}) {
 
 	useEffect(() => {
 		getCorrelationData()
+		const interval = setInterval(() => {
+			getCorrelationData()
+		}, 60000)
+		return () => clearInterval(interval)
 	}, [])
 
   const corrMatrix = correlationData?.data
 
   return (
-    <Plot
-			data={[
-				{
-					z: corrMatrix,
-					x: sources,
-					y: sources,
-					type: 'heatmap',
-					colorscale: 'RdBu',
-					colorbar: {
-						title: 'Correlation'
+    <div style={{position: 'relative'}}>
+			<h3 style={{fontWeight: 600, position: 'absolute', zIndex: 10, top: 20, left: 20}}>Correlation Matrix</h3>
+			<Plot
+				data={[
+					{
+						z: corrMatrix,
+						x: sources,
+						y: sources,
+						type: 'heatmap',
+						colorscale: 'RdBu',
+						colorbar: {
+							title: 'Correlation'
+						}
 					}
-				}
-			]}
-			layout={{
-				xaxis: {
-					title: 'Energy Sources',
-					tickmode: 'array',
-					tickvals: sources,
-					ticktext: sources
-				},
-				yaxis: {
-					title: '',
-					tickmode: 'array',
-					tickvals: sources,
-					ticktext: sources
-				}
-			}}
-			style={{width: '700px', height: '700px'}}
-		/>
+				]}
+				layout={{
+					xaxis: {
+						title: 'Energy Sources',
+						tickmode: 'array',
+						tickvals: sources,
+						ticktext: sources
+					},
+					yaxis: {
+						title: '',
+						tickmode: 'array',
+						tickvals: sources,
+						ticktext: sources
+					}
+				}}
+				style={{width: '500px', height: '500px', margin: 'auto'}}
+			/>
+		</div>
   )
 }

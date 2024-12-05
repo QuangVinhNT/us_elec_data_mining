@@ -88,7 +88,6 @@ if __name__ == '__main__':
   while True:
     delete_all_decomposed_data()
     delete_all_correlation_data()
-    cal_decomposed_data()
     cal_correlation_data()
+    cal_decomposed_data()
     time.sleep(300)
-  # pass

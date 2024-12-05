@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 
 def get_pivot_data():
   try:
-    response = requests.get('http://database-api:3000/get-pivot-data')
+    response = requests.get('http://database-api:3000/get-pivot-data-d')
     response_data = pandas.DataFrame(json.loads(response.text))
     response_data['produce_time'] = pandas.to_datetime(response_data['produce_time'])
     return response_data
@@ -38,8 +38,8 @@ def get_clustering_data():
     'produce_time': pivot_data['produce_time'],
     'total': pivot_data['total']
   })
-  daily_df_total = df_total.resample('D', on='produce_time').median().dropna(axis=0)
-  processed_data = cluster_process(daily_df_total)
+  # daily_df_total = df_total.resample('D', on='produce_time').median().dropna(axis=0)
+  processed_data = cluster_process(df_total)
   try:
     print('====================\nStart insert clustering data')
     for i in range(len(processed_data)):
@@ -63,16 +63,6 @@ def delete_all_clustering_data():
     print(f'Error when delete clustering data: {err}')
 
 def cal_percent_rate():
-  # pivot_data = get_pivot_data()
-  # df_total = pandas.DataFrame({
-  #   'produce_time': pivot_data['produce_time'],
-  #   'total': pivot_data['total']
-  # })
-  # daily_df_total = df_total.resample('D', on='produce_time').median().dropna(axis=0).reset_index()
-  # daily_df_total = cluster_process(daily_df_total)
-  # centroids = pandas.DataFrame(daily_df_total.groupby('custom_label')['total'].median())
-  # centroids_probabilities = centroids
-  # distances = [numpy.abs()]
   pass
 
 if __name__ == '__main__':
@@ -80,4 +70,3 @@ if __name__ == '__main__':
     delete_all_clustering_data()
     get_clustering_data()     
     time.sleep(86400)
-  # pass

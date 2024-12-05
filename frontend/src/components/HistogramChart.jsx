@@ -4,16 +4,16 @@ import Plot from "react-plotly.js";
 export default function HistogramChart({setLoadingHistogramChart}) {
 	const [pivotData, setPivotData] = useState([])
 	const getPivotData = async () => {
-		const response = await fetch('http://localhost:3000/get-pivot-data')
+		const response = await fetch('http://localhost:3000/get-pivot-data-w')
 		const data = await response.json()
 		if (response.ok) {
 			const dataByFuel = {
-				'Produce Time': Object.keys(data.produce_time).map((value) => new Date(data.produce_time[value])),
-				'Coal': Object.keys(data.Coal).map((value) => data.Coal[value]),
-				'Hydro': Object.keys(data.Hydro).map((value) => data.Hydro[value]),
-				'Natural Gas': Object.keys(data['Natural Gas']).map((value) => data['Natural Gas'][value]),
-				'Nuclear': Object.keys(data.Nuclear).map((value) => data.Nuclear[value]),
-				'Solar': Object.keys(data.Solar).map((value) => data.Solar[value])
+				'Produce Time': Object.keys(data?.produce_time).map((value) => new Date(data?.produce_time[value])),
+				'Coal': Object.keys(data?.Coal).map((value) => data?.Coal[value]),
+				'Hydro': Object.keys(data?.Hydro).map((value) => data?.Hydro[value]),
+				'Natural Gas': Object.keys(data?.['Natural Gas']).map((value) => data?.['Natural Gas'][value]),
+				'Nuclear': Object.keys(data?.Nuclear).map((value) => data?.Nuclear[value]),
+				'Solar': Object.keys(data?.Solar).map((value) => data?.Solar[value])
 			}
 			const cellDatas = [
 				dataByFuel['Produce Time'],
@@ -29,6 +29,10 @@ export default function HistogramChart({setLoadingHistogramChart}) {
 	}
 	useEffect(() => {
 		getPivotData()
+		const interval = setInterval(() => {
+			getPivotData()
+		}, 60000)
+		return () => clearInterval(interval)
 	}, [])
 
   const coalTrace = {
@@ -74,16 +78,18 @@ export default function HistogramChart({setLoadingHistogramChart}) {
 		solarTrace,
 	]
   return (
-    <Plot
-			data={chartData}
-			layout={{
-				showlegend: true,
-				barmode: 'overlay',
-				paper_bgcolor: '#f4f8fb',
-				xaxis: {title: 'Productive (megawatts - MW)'},
-				yaxis: {title: 'Frequency'}
-			}}
-			style={{width: '100%', height: '80vh'}}
-		/>
+    <div style={{position: 'relative'}}>
+			<h3 style={{fontWeight: 600, position: 'absolute', zIndex: 10, top: 20, left: 20}}>Distribute electricity output by Fuel</h3>
+			<Plot
+				data={chartData}
+				layout={{
+					showlegend: true,
+					barmode: 'overlay',
+					xaxis: {title: 'Productive (megawatts - MW)'},
+					yaxis: {title: 'Frequency'}
+				}}
+				style={{width: '100%', height: '70vh'}}
+			/>
+		</div>
   )
 }

@@ -221,7 +221,7 @@ def delete_all_prediction_data():
     cursor.close()
     connection.close()
 
-# Get pivot data
+# Get pivot data by hour
 @app.route('/get-pivot-data', methods=['GET'])
 def get_pivot_data():
   connection = connect_db()
@@ -241,6 +241,93 @@ def get_pivot_data():
     df_data = pandas.DataFrame(raw_data, columns=['produce_time', 'fuel_type', 'value'])
     pivot_data = df_data.pivot(index='produce_time', columns='fuel_type', values='value').reset_index().dropna(axis=1)
     pivot_data['total'] = pivot_data.iloc[:, 1:].sum(axis=1) 
+    return jsonify(pivot_data.to_dict())
+  except connector.Error as err:
+    connection.rollback()
+    return jsonify({'Error when get pivot data': str(err)}), 500
+  finally:
+    cursor.close()
+    connection.close()
+
+# Get pivot data by day
+@app.route('/get-pivot-data-d', methods=['GET'])
+def get_pivot_data_d():
+  connection = connect_db()
+  if not connection:
+    return jsonify({'error': 'Database connection failed'}), 500
+  try:
+    cursor = connection.cursor()
+    cursor.execute(
+      '''
+        SELECT produce_time, fuel_type, sum(value)
+        FROM us_elec.elec_prod
+        GROUP BY fuel_type, produce_time
+        ORDER BY produce_time ASC
+      '''
+    )
+    raw_data = cursor.fetchall()
+    df_data = pandas.DataFrame(raw_data, columns=['produce_time', 'fuel_type', 'value'])
+    pivot_data = df_data.pivot(index='produce_time', columns='fuel_type', values='value').reset_index().dropna(axis=1)
+    pivot_data['total'] = pivot_data.iloc[:, 1:].sum(axis=1) 
+    pivot_data = pivot_data.resample('D', on='produce_time').median().dropna(axis=0).reset_index()
+    return jsonify(pivot_data.to_dict())
+  except connector.Error as err:
+    connection.rollback()
+    return jsonify({'Error when get pivot data': str(err)}), 500
+  finally:
+    cursor.close()
+    connection.close()
+
+# Get pivot data by week
+@app.route('/get-pivot-data-w', methods=['GET'])
+def get_pivot_data_w():
+  connection = connect_db()
+  if not connection:
+    return jsonify({'error': 'Database connection failed'}), 500
+  try:
+    cursor = connection.cursor()
+    cursor.execute(
+      '''
+        SELECT produce_time, fuel_type, sum(value)
+        FROM us_elec.elec_prod
+        GROUP BY fuel_type, produce_time
+        ORDER BY produce_time ASC
+      '''
+    )
+    raw_data = cursor.fetchall()
+    df_data = pandas.DataFrame(raw_data, columns=['produce_time', 'fuel_type', 'value'])
+    pivot_data = df_data.pivot(index='produce_time', columns='fuel_type', values='value').reset_index().dropna(axis=1)
+    pivot_data['total'] = pivot_data.iloc[:, 1:].sum(axis=1) 
+    pivot_data = pivot_data.resample('W', on='produce_time').median().dropna(axis=0).reset_index()
+    return jsonify(pivot_data.to_dict())
+  except connector.Error as err:
+    connection.rollback()
+    return jsonify({'Error when get pivot data': str(err)}), 500
+  finally:
+    cursor.close()
+    connection.close()
+
+# Get pivot data by month
+@app.route('/get-pivot-data-m', methods=['GET'])
+def get_pivot_data_m():
+  connection = connect_db()
+  if not connection:
+    return jsonify({'error': 'Database connection failed'}), 500
+  try:
+    cursor = connection.cursor()
+    cursor.execute(
+      '''
+        SELECT produce_time, fuel_type, sum(value)
+        FROM us_elec.elec_prod
+        GROUP BY fuel_type, produce_time
+        ORDER BY produce_time ASC
+      '''
+    )
+    raw_data = cursor.fetchall()
+    df_data = pandas.DataFrame(raw_data, columns=['produce_time', 'fuel_type', 'value'])
+    pivot_data = df_data.pivot(index='produce_time', columns='fuel_type', values='value').reset_index().dropna(axis=1)
+    pivot_data['total'] = pivot_data.iloc[:, 1:].sum(axis=1) 
+    pivot_data = pivot_data.resample('ME', on='produce_time').median().dropna(axis=0).reset_index()
     return jsonify(pivot_data.to_dict())
   except connector.Error as err:
     connection.rollback()

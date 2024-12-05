@@ -47,7 +47,7 @@ services:
   data-analysis:
     build: './backend/data_analysis/'
     depends_on:
-      - 'database-api'
+      - 'data-ingestion'
     restart: no
     networks:
       - us-elec-network
@@ -55,7 +55,7 @@ services:
   clustering:
     build: './backend/clustering/'
     depends_on:
-      - 'database-api'
+      - 'data-ingestion'
     restart: no
     networks:
       - us-elec-network
@@ -63,7 +63,7 @@ services:
   prediction:
     build: './backend/prediction/'
     depends_on:
-      - 'database-api'
+      - 'data-ingestion'
     restart: no
     networks:
       - us-elec-network
@@ -74,6 +74,10 @@ services:
       - '5173:5173'
     depends_on:
       - 'database-api'
+      - 'data-ingestion'
+      - 'data-analysis'
+      - 'clustering'
+      - 'prediction'
     restart: no
     networks:
       - us-elec-network

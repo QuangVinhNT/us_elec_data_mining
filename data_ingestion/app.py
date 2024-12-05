@@ -37,4 +37,3 @@ if __name__ == '__main__':
   while True:
     insert_to_db()
     time.sleep(300)
-  # pass

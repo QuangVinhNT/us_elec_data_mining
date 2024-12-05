@@ -20,6 +20,10 @@ export default function SpiderChart({setLoadingSpiderChart}) {
 
 	useEffect(() => {
 		getClusteringData()
+		const interval = setInterval(() => {
+			getClusteringData()
+		}, 60000)
+		return () => clearInterval(interval)
 	}, [])
 
 
@@ -59,15 +63,15 @@ export default function SpiderChart({setLoadingSpiderChart}) {
 		polar: {
 			radialaxis: {
 				visible: true,
-				range: [0, 3000000]
+				range: [0, 3500000]
 			}
 		},
 		showlegend: false,
-		paper_bgcolor: '#f4f8fb'
 	}
 
 	return (
-		<>
+		<div style={{position: 'relative'}}>
+			<h3 style={{fontWeight: 600, position: 'absolute', zIndex: 10, top: 20, left: 20}}>Spider chart by Year (2019 - 2024)</h3>
 			<div
 				style={{
 					display: 'flex',
@@ -79,17 +83,17 @@ export default function SpiderChart({setLoadingSpiderChart}) {
 			>
 				{chartDatas?.map((chartData, index) => {
 					return (
-						<div key={index}>
+						<div key={index} style={{position: 'relative'}}>
 							<Plot
 								data={chartData}
 								layout={chartLayout}
-								style={{width: '400px', height: '400px'}}
+								style={{width: '350px', height: '350px'}}
 							/>
-							<h5 style={{marginTop: '10px', textAlign: 'center'}}>{`Year: ${2019 + index}`}</h5>
+							<h5 style={{position: 'absolute', zIndex: 10, bottom: 0, left: '50%', transform: 'translateX(-50%)', fontSize: '20px', fontWeight: 500}}>{`${2019 + index}`}</h5>
 						</div>
 					)
 				})}
 			</div>
-		</>
+		</div>
 	)
 }
